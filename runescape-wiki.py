@@ -36,7 +36,7 @@ def process_comment(comment):
                 try:
                     if page_json['parse']['title'] not in "Nonexistence":
                         description = page_json['parse']['properties'][1]['*']
-                        reply_text = "I found 1 OSRS Wiki article for your search. \n\n **[" + data[1][0] + "](" + data[3][0] + ")** | " + data[3][0] + " \n\n >" + description + " \n\n --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^"
+                        reply_text = "I found 1 OSRS Wiki article for your search. \n\n **[" + data[1][0] + "](" + data[3][0] + ")** | " + data[3][0] + " \n\n >" + description + " \n\n --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically."
                         comment.reply(reply_text)
                 except KeyError:
                     print "No page found: " + match.group(1)
