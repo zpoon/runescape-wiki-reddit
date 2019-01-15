@@ -2,6 +2,7 @@ import praw
 import re
 import json
 import requests
+import os
 
 def main():
     config = get_config()
@@ -16,8 +17,9 @@ def main():
 
 def get_config():
     """Load the config from config.json"""
+    location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
     try:
-        with open('config.json') as json_data_file:
+        with open(os.path.join(location, 'config.json')) as json_data_file:
             config = json.load(json_data_file)
             return config
     except IOError:
