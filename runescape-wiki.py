@@ -2,6 +2,7 @@ import praw
 import re
 import json
 import requests
+import os
 
 def main():
     config = get_config()
@@ -16,8 +17,9 @@ def main():
 
 def get_config():
     """Load the config from config.json"""
+    location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
     try:
-        with open('config.json') as json_data_file:
+        with open(os.path.join(location, 'config.json')) as json_data_file:
             config = json.load(json_data_file)
             return config
     except IOError:
@@ -27,14 +29,10 @@ def get_matches(comment):
     return re.findall(r'\[\[(.*?)\]\]', comment)
 
 def build_reply(wiki_data, subreddit):
-    if subreddit == "2007scape":
-        wiki_type = "OSRS Wiki"
-    else:
-        wiki_type = "RuneScape Wiki"
     results = ""
     for item in wiki_data:
         results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], item['result_url'], item['result_url'], item['description'])
-    return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." %        (len(wiki_data), wiki_type, "articles" if len(wiki_data) > 1 else "article", results)
+    return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
 
 def get_wiki_info(value, subreddit):
     api_rs_OPENSEARCH = "https://runescape.wiki/api.php?action=opensearch&search="
