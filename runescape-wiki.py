@@ -10,12 +10,9 @@ def main():
                          username=config['reddit']['username'], password=config['reddit']['password'])
 
     subreddit = reddit.subreddit('2007scape+runescape')
-    testcase = "This is a test case with multiple matches. While guthix Sleeps and Slayer"
     print "Now waiting for matches in comments...to quit: Ctrl+C or interrupt process."
-    # for comment in subreddit.stream.comments():
-    #     process_comment(comment)
-    match = re.findall(r'\[\[(.*?)\]\]', testcase)
-    print len(match)
+    for comment in subreddit.stream.comments():
+        process_comment(comment)
 
 def get_config():
     """Load the config from config.json"""
@@ -34,7 +31,10 @@ def build_reply(wiki_data, subreddit):
         wiki_type = "OSRS Wiki"
     else:
         wiki_type = "RuneScape Wiki"
-    return "I found 1 %s article for your search. \n\n **[%s](%s)** | %s \n\n >%s \n\n --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." %        (wiki_type, wiki_data['result_name'], wiki_data['result_url'], wiki_data['result_url'], wiki_data['description'])
+    results = ""
+    for item in wiki_data:
+        results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], item['result_url'], item['result_url'], item['description'])
+    return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." %        (len(wiki_data), wiki_type, "articles" if len(wiki_data) > 1 else "article", results)
 
 def get_wiki_info(value, subreddit):
     api_rs_OPENSEARCH = "https://runescape.wiki/api.php?action=opensearch&search="
@@ -73,39 +73,16 @@ def get_wiki_info(value, subreddit):
         print e
         return None
 
-
-
 def process_comment(comment):
+    wiki_data = []
     match = get_matches(comment.body)
     if len(match) > 0:
         for page in match:
-            if comment.subreddit == "2007scape":
-                response = requests.get("https://oldschool.runescape.wiki/api.php?action=opensearch&search=" + match.group(1))
-                data = response.json()
-                if data[1]:
-                    parse_page = requests.get("https://oldschool.runescape.wiki/api.php?action=parse&redirects=1&format=json&page=" + data[1][0])
-                    page_json = parse_page.json()
-                    try:
-                        if page_json['parse']['title'] not in "Nonexistence":
-                            description = page_json['parse']['properties'][1]['*']
-                            reply_text = "I found 1 OSRS Wiki article for your search. \n\n **[" + data[1][0] + "](" + data[3][0] + ")** | " + data[3][0] + " \n\n >" + description + " \n\n --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)."
-                            comment.reply(reply_text)
-                    except KeyError:
-                        print "No page found: " + match.group(1)
-            if comment.subreddit == "runescape":
-                response = requests.get("https://runescape.wiki/api.php?action=opensearch&search=" + match.group(1))
-                data = response.json()
-                if data[1]:
-                    parse_page = requests.get("https://runescape.wiki/api.php?action=parse&redirects=1&format=json&page=" + data[1][0])
-                    page_json = parse_page.json()
-                    try:
-                        if page_json['parse']['title'] not in "Nonexistence":
-                            description = page_json['parse']['properties'][1]['*']
-                            reply_text = "I found 1 RuneScape Wiki article for your search. \n\n **[" + data[1][0] + "](" + data[3][0] + ")** | " + data[3][0] + " \n\n >" + description + " \n\n --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)."
-                            comment.reply(reply_text)
-                    except KeyError:
-                        print "No page found: " + match.group(1)
-
+            result = get_wiki_info(page, comment.subreddit)
+            if result and len(wiki_data) < 6:
+                wiki_data.append(result)
+        if wiki_data:
+            comment.reply(build_reply(wiki_data, comment.subreddit))
 
 if __name__ == '__main__':
     main()
