@@ -31,14 +31,14 @@ def get_matches(comment):
 def build_reply(wiki_data, subreddit):
     results = ""
     for item in wiki_data:
-        results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], item['result_url'], item['result_url'], item['description'])
+        results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], item['description'])
     return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
 
 def get_wiki_info(value, subreddit):
     api_rs_OPENSEARCH = "https://runescape.wiki/api.php?action=opensearch&search="
     api_osrs_OPENSEARCH = "https://oldschool.runescape.wiki/api.php?action=opensearch&search="
-    api_rs_PARSE = "https://runescape.wiki/api.php?action=parse&redirects=1&format=json&page="
-    api_osrs_PARSE = "https://oldschool.runescape.wiki/api.php?action=parse&redirects=1&format=json&page="
+    api_rs_PARSE = "https://runescape.wiki/api.php?action=parse&prop=properties&redirects=1&format=json&page="
+    api_osrs_PARSE = "https://oldschool.runescape.wiki/api.php?action=parse&prop=properties&redirects=1&format=json&page="
 
     try:
         if subreddit == "2007scape":
