@@ -11,7 +11,7 @@ def main():
                          username=config['reddit']['username'], password=config['reddit']['password'])
 
     subreddit = reddit.subreddit('2007scape+runescape')
-    print "Now waiting for matches in comments...to quit: Ctrl+C or interrupt process."
+    print("Now waiting for matches in comments...to quit: Ctrl+C or interrupt process.")
     for comment in subreddit.stream.comments():
         process_comment(comment)
 
@@ -63,12 +63,12 @@ def get_wiki_info(value, subreddit):
                 else:
                     return None
             except KeyError:
-                print "No page found for %s" % search_results[1][0]
+                print("No page found for %s" % search_results[1][0])
                 return None
         else:
             return None
     except requests.exceptions.RequestException as e:
-        print e
+        print(e)
         return None
 
 def process_comment(comment):
@@ -76,9 +76,10 @@ def process_comment(comment):
     match = get_matches(comment.body)
     if len(match) > 0:
         for page in match:
-            result = get_wiki_info(page, comment.subreddit)
-            if result and len(wiki_data) < 6:
-                wiki_data.append(result)
+            if len(page) < 75:
+                result = get_wiki_info(page, comment.subreddit)
+                if result and len(wiki_data) < 6:
+                    wiki_data.append(result)
         if wiki_data:
             comment.reply(build_reply(wiki_data, comment.subreddit))
 
