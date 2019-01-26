@@ -54,7 +54,9 @@ def get_wiki_info(value, subreddit):
             description_page = response.json()
             try:
                 if description_page['parse']['title'] not in "Nonexistence":
-                    description = description_page['parse']['properties'][1]['*']
+                    for prop in description_page['parse']['properties']:
+                        if prop['name'] == "description":
+                            description = prop['*']
                     return {
                         'result_name': search_results[1][0],
                         'result_url': search_results[3][0],
