@@ -1,5 +1,6 @@
 import praw
 import re
+import time
 import json
 import requests
 import os
@@ -10,10 +11,17 @@ def main():
                          client_id=config['reddit']['client_id'], client_secret=config['reddit']['secret'],
                          username=config['reddit']['username'], password=config['reddit']['password'])
 
-    subreddit = reddit.subreddit('2007scape+runescape')
+    subreddit = reddit.subreddit('zpoon')
     print("Now waiting for matches in comments...to quit: Ctrl+C or interrupt process.")
-    for comment in subreddit.stream.comments():
-        process_comment(comment)
+    while True:
+        try:
+            for comment in subreddit.stream.comments():
+                process_comment(comment)
+        except Exception as e:
+            if '503' in str(e):
+                print("Reddit server is having issues, waiting...")
+                time.sleep(30)
+                continue
 
 def get_config():
     """Load the config from config.json"""
@@ -83,7 +91,12 @@ def process_comment(comment):
                 if result and len(wiki_data) < 6:
                     wiki_data.append(result)
         if wiki_data:
-            comment.reply(build_reply(wiki_data, comment.subreddit))
+            try:
+                comment.reply(build_reply(wiki_data, comment.subreddit))
+            except Exception as e:
+                if '503' in str(e):
+                    print("Reddit server is having issues, waiting...")
+                    time.sleep(30)
 
 if __name__ == '__main__':
     main()
