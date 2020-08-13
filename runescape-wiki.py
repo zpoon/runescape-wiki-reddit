@@ -36,11 +36,14 @@ def get_config():
 def get_matches(comment):
     return re.findall(r'\[\[(.*?)\]\]', comment)
 
-def build_reply(wiki_data, subreddit):
+def build_reply(wiki_data, subreddit, truncate):
     results = ""
     for item in wiki_data:
         results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], item['description'])
-    return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+    if truncate == 0:
+        return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+    else:
+        return "I found %s %s %s for your search. *(%s %s ignored. Limit 6 results per comment.)* \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", truncate, "search was" if truncate == 1 else "searches were", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
 
 def get_wiki_info(value, subreddit):
     api_rs_OPENSEARCH = "https://runescape.wiki/api.php?action=opensearch&search="
@@ -92,7 +95,11 @@ def process_comment(comment):
                     wiki_data.append(result)
         if wiki_data:
             try:
-                comment.reply(build_reply(wiki_data, comment.subreddit))
+                if len(match) > 6:
+                    results_ignored = len(match) - 6
+                    comment.reply(build_reply(wiki_data, comment.subreddit, results_ignored))
+                else:
+                    comment.reply(build_reply(wiki_data, comment.subreddit, 0))
             except Exception as e:
                 if '503' in str(e):
                     print("Reddit server is having issues, waiting...")
