@@ -50,25 +50,22 @@ def build_reply(wiki_data, subreddit, truncate):
 def get_wiki_info(value, subreddit):
     # RS3 and OSRS searches use different api endpoints. 
     # OPENSEARCH takes a search term and finds a matching rs-wiki page, then returns it.
-    api_rs_OPENSEARCH = "https://runescape.wiki/api.php"
-    api_osrs_OPENSEARCH = "https://oldschool.runescape.wiki/api.php"
-    # PARSE takes the returned rs-wiki page and gets the full page title, URL, and a short description
-    api_rs_PARSE = "https://runescape.wiki/api.php"
-    api_osrs_PARSE = "https://oldschool.runescape.wiki/api.php"
+    api_rs = "https://runescape.wiki/api.php"
+    api_osrs = "https://oldschool.runescape.wiki/api.php"
     params_OPENSEARCH = {'action': 'opensearch', 'search': value}
     params_PARSE = {'action': 'parse', 'prop': 'properties', 'redirects': 1, 'format': 'json'}
     try:
         if subreddit == "2007scape":
-            response = requests.get(api_osrs_OPENSEARCH, params=params_OPENSEARCH)
+            response = requests.get(api_osrs, params=params_OPENSEARCH)
         else:
-            response = requests.get(api_rs_OPENSEARCH, params=params_OPENSEARCH)
+            response = requests.get(api_rs, params=params_OPENSEARCH)
         search_results = response.json()
         if search_results[1]:
             params_PARSE['page'] = search_results[1][0]
             if subreddit == "2007scape":
-                response = requests.get(api_osrs_PARSE, params=params_PARSE)
+                response = requests.get(api_osrs, params=params_PARSE)
             else:
-                response = requests.get(api_rs_PARSE, params=params_PARSE)
+                response = requests.get(api_rs, params=params_PARSE)
             description_page = response.json()
             try:
                 if description_page['parse']['title'] not in "Nonexistence":
