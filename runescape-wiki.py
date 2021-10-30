@@ -13,7 +13,7 @@ def main():
                          client_id=config['reddit']['client_id'], client_secret=config['reddit']['secret'],
                          username=config['reddit']['username'], password=config['reddit']['password'])
 
-    subreddit = reddit.subreddit('2007scape+runescape')
+    subreddit = reddit.subreddit(config['reddit']['subreddit'])
     print("Now waiting for matches in comments...to quit: Ctrl+C or interrupt process.")
     while True:
         try:
