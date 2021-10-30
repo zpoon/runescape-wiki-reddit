@@ -40,14 +40,22 @@ def get_matches(comment):
 # Build the reply with wiki data
 def build_reply(wiki_data, subreddit, truncate):
     results = ""
+    sites = []
     for item in wiki_data:
+        sites.append(item['site'])
         results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], item['description'])
-    if truncate == 0:
-        return "I found %s %s %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+    if sites.count('osrs') >= 1 and sites.count('rs3') >= 1:
+        headline = "%s RuneScape Wiki + %s OSRS Wiki %s" % (sites.count('rs3'), sites.count('osrs'), "articles" if sites.count('osrs') > 1 else "article")
+    elif sites.count('osrs') >= 1:
+        headline = "%s OSRS Wiki %s" % (sites.count('osrs'), "articles" if sites.count('osrs') > 1 else "article")
     else:
-        return "I found %s %s %s for your search. *(%s %s ignored. Limit 6 results per comment.)* \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (len(wiki_data), "OSRS Wiki" if subreddit == "2007scape" else "RuneScape Wiki" , "articles" if len(wiki_data) > 1 else "article", truncate, "search was" if truncate == 1 else "searches were", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+        headline = "%s RuneScape Wiki %s" % (sites.count('rs3'), "articles" if sites.count('osrs') > 1 else "article")
+    if truncate == 0:
+        return "I found %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| **^^^NEW:** ^^^use ^^^optional ^^^modifiers ^^^(rs3:osrs) ^^^to ^^^specify ^^^wiki ^^^sites ^^^in ^^^searches. %s " %        (headline, results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+    else:
+        return "I found %s for your search. *(%s %s ignored. Limit 6 results per comment.)* \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| **^^^NEW:** ^^^use ^^^optional ^^^modifiers ^^^(rs3:osrs) ^^^to ^^^specify ^^^wiki ^^^sites ^^^in ^^^searches. %s " %        (headline, truncate, "search was" if truncate == 1 else "searches were", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
 # Access the rs-wiki api to get relevant data per search term
-def get_wiki_info(value, subreddit):
+def get_wiki_info(value, site):
     # RS3 and OSRS searches use different api endpoints. 
     # OPENSEARCH takes a search term and finds a matching rs-wiki page, then returns it.
     api_rs = "https://runescape.wiki/api.php"
@@ -55,14 +63,14 @@ def get_wiki_info(value, subreddit):
     params_OPENSEARCH = {'action': 'opensearch', 'search': value}
     params_PARSE = {'action': 'parse', 'prop': 'properties', 'redirects': 1, 'format': 'json'}
     try:
-        if subreddit == "2007scape":
+        if site == "osrs":
             response = requests.get(api_osrs, params=params_OPENSEARCH)
         else:
             response = requests.get(api_rs, params=params_OPENSEARCH)
         search_results = response.json()
         if search_results[1]:
             params_PARSE['page'] = search_results[1][0]
-            if subreddit == "2007scape":
+            if site == "osrs":
                 response = requests.get(api_osrs, params=params_PARSE)
             else:
                 response = requests.get(api_rs, params=params_PARSE)
@@ -75,7 +83,8 @@ def get_wiki_info(value, subreddit):
                     return {
                         'result_name': search_results[1][0],
                         'result_url': search_results[3][0],
-                        'description': description
+                        'description': description,
+                        'site': site
                     }
                 else:
                     return None
@@ -91,6 +100,8 @@ def get_wiki_info(value, subreddit):
         return None
 # Recieve new comment from stream, send it to regex search, and reply to user if term exists
 def process_comment(comment):
+    rs_modifiers = ["r", "rs3", "rsw", "rs", "runescape"]
+    os_modifiers = ["o", "2007", "osrs", "osw", "osrsw", "os", "oldschool", "2007scape", "oldschoolrunescape"]
     wiki_data = []
     match = get_matches(comment.body)
     # Check for [[ ]] trigger presence
@@ -98,7 +109,23 @@ def process_comment(comment):
         for page in match:
             # Simple check to make sure search term isn't spam although it shouldn't affect anything
             if len(page) < 75:
-                result = get_wiki_info(page, comment.subreddit)
+                # Check for site modifiers
+                mod_split = page.split(":", 1)
+                if len(mod_split) == 2:
+                    if mod_split[0] in rs_modifiers:
+                        page = mod_split[1]
+                        site = 'rs3'
+                    elif mod_split[0] in os_modifiers:
+                        page = mod_split[1]
+                        site = 'osrs'
+                    # Case when modifier found but it's not a site one
+                    else:
+                        page = mod_split[1]
+                        site = 'rs3' if comment.subreddit == 'runescape' else 'osrs'
+                # Default case when no modifier
+                else:
+                    site = 'rs3' if comment.subreddit == 'runescape' else 'osrs'
+                result = get_wiki_info(page, site)
                 if result and len(wiki_data) < 6:
                     wiki_data.append(result)
         if wiki_data:
