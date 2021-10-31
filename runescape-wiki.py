@@ -49,7 +49,7 @@ def build_reply(wiki_data, subreddit, truncate):
     elif sites.count('osrs') >= 1:
         headline = "%s OSRS Wiki %s" % (sites.count('osrs'), "articles" if sites.count('osrs') > 1 else "article")
     else:
-        headline = "%s RuneScape Wiki %s" % (sites.count('rs3'), "articles" if sites.count('osrs') > 1 else "article")
+        headline = "%s RuneScape Wiki %s" % (sites.count('rs3'), "articles" if sites.count('rs3') > 1 else "article")
     if truncate == 0:
         return "I found %s for your search. \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. ^^^| **^^^NEW:** ^^^use ^^^optional ^^^modifiers ^^^(rs3:osrs) ^^^to ^^^specify ^^^wiki ^^^sites ^^^in ^^^searches. %s " %        (headline, results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
     else:
