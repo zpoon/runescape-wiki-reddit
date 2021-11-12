@@ -18,6 +18,7 @@ def main():
     while True:
         try:
             for comment in subreddit.stream.comments():
+                print(comment.body)
                 process_comment(comment)
         # Handle when reddit doesn't want to co-operate
         except Exception as e:
@@ -43,7 +44,7 @@ def build_reply(wiki_data, subreddit, truncate):
     sites = []
     for item in wiki_data:
         sites.append(item['site'])
-        results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], item['description'])
+        results += "**[%s](%s)** | %s %s \n\n >%s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], " | *GE: " + item['ge_price'] + "*"  if item['ge_price'] else "", item['description'])
     if sites.count('osrs') >= 1 and sites.count('rs3') >= 1:
         headline = "%s RuneScape Wiki + %s OSRS Wiki %s" % (sites.count('rs3'), sites.count('osrs'), "articles" if sites.count('osrs') > 1 else "article")
     elif sites.count('osrs') >= 1:
@@ -61,7 +62,7 @@ def get_wiki_info(value, site):
     api_rs = "https://runescape.wiki/api.php"
     api_osrs = "https://oldschool.runescape.wiki/api.php"
     params_OPENSEARCH = {'action': 'opensearch', 'search': value}
-    params_PARSE = {'action': 'parse', 'prop': 'properties', 'redirects': 1, 'format': 'json'}
+    params_PARSE = {'action': 'parse', 'redirects': 1, 'format': 'json'}
     try:
         if site == "osrs":
             response = requests.get(api_osrs, params=params_OPENSEARCH)
@@ -77,6 +78,14 @@ def get_wiki_info(value, site):
             description_page = response.json()
             try:
                 if description_page['parse']['title'] not in "Nonexistence":
+                    categories = []
+                    for category in description_page['parse']['categories']:
+                        categories.append(category['*'])
+                    if "Grand_Exchange_items" in categories:
+                        item_id = re.findall(r"(?<=data-itemid=\")[a-zA-Z0-9]*", description_page['parse']['text'])
+                        ge_price = get_ge_price(item_id)
+                    else:
+                        ge_price = None
                     for prop in description_page['parse']['properties']:
                         if prop['name'] == "description":
                             description = prop['*']
@@ -84,7 +93,8 @@ def get_wiki_info(value, site):
                         'result_name': search_results[1][0],
                         'result_url': search_results[3][0],
                         'description': description,
-                        'site': site
+                        'site': site,
+                        'ge_price': ge_price
                     }
                 else:
                     return None
@@ -95,6 +105,20 @@ def get_wiki_info(value, site):
         else:
             return None
     # Handle HTTP errors accessing rs-wiki
+    except requests.exceptions.RequestException as e:
+        print(e)
+        return None
+def get_ge_price(item_id):
+    ge_api = "https://secure.runescape.com/m=itemdb_rs/api/catalogue/detail.json"
+    params = {'item': item_id}
+    try:
+        response = requests.get(ge_api, params)
+        ge_price = response.json()
+        print(ge_price)
+        if ge_price['item'] is not None:
+            return ge_price['item']['current']['price']
+        else:
+            return None
     except requests.exceptions.RequestException as e:
         print(e)
         return None
