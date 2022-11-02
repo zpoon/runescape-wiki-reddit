@@ -17,7 +17,7 @@ def main():
     print("Now waiting for matches in comments...to quit: Ctrl+C or interrupt process.")
     while True:
         try:
-            for comment in subreddit.stream.comments():
+            for comment in subreddit.stream.comments(skip_existing=True):
                 process_comment(comment)
         # Handle when reddit doesn't want to co-operate
         except Exception as e:
@@ -56,6 +56,7 @@ def build_reply(wiki_data, subreddit, truncate):
         return "I found %s for your search. *(%s %s ignored. Limit 6 results per comment.)* \n\n %s --- \n\n **^^^RuneScape ^^^Wiki ^^^linker** ^^^| ^^^This ^^^was ^^^generated ^^^automatically. %s " %        (headline, truncate, "search was" if truncate == 1 else "searches were", results, "^^^| ^^^View ^^^me ^^^on ^^^[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
 # Access the rs-wiki api to get relevant data per search term
 def get_wiki_info(value, site):
+    print("getting data", value, site)
     # RS3 and OSRS searches use different api endpoints. 
     # OPENSEARCH takes a search term and finds a matching rs-wiki page, then returns it.
     api_rs = "https://runescape.wiki/api.php"
@@ -103,9 +104,11 @@ def process_comment(comment):
     rs_modifiers = ["r", "rs3", "rsw", "rs", "runescape"]
     os_modifiers = ["o", "2007", "osrs", "osw", "osrsw", "os", "oldschool", "2007scape", "oldschoolrunescape"]
     wiki_data = []
-    match = get_matches(comment.body)
+    text_to_match = comment.body
+    match = get_matches(text_to_match.replace('\\', ''))
     # Check for [[ ]] trigger presence
     if len(match) > 0:
+        print("found match", match)
         for page in match:
             # Simple check to make sure search term isn't spam although it shouldn't affect anything
             if len(page) < 75:
