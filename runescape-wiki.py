@@ -111,7 +111,7 @@ def process_comment(comment):
         print("found match", match)
         for page in match:
             # Simple check to make sure search term isn't spam although it shouldn't affect anything
-            if len(page) < 75:
+            if len(page) < 75 and not page.isdigit():
                 # Check for site modifiers
                 mod_split = page.split(":", 1)
                 if len(mod_split) == 2:
