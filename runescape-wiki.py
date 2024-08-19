@@ -51,9 +51,9 @@ def build_reply(wiki_data, subreddit, truncate):
     else:
         headline = "%s RuneScape Wiki %s" % (sites.count('rs3'), "articles" if sites.count('rs3') > 1 else "article")
     if truncate == 0:
-        return "I found %s for your search. \n\n %s --- \n\n ^RuneScape&#x2005;Wiki&#x2005;linker&#x2005;|&#x2005;This&#x2005;was&#x2005;generated&#x2005;automatically. %s " %        (headline, results, "^|&#x2005;View&#x2005;me&#x2005;on&#x2005;[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+        return "I found %s for your search. \n\n %s --- \n\n ^RuneScape&#x2005;Wiki&#x2005;linker&#x2005;|&#x2005;This&#x2005;was&#x2005;generated&#x2005;automatically." %        (headline, results)
     else:
-        return "I found %s for your search. *(%s %s ignored. Limit 6 results per comment.)* \n\n %s --- \n\n ^RuneScape&#x2005;Wiki&#x2005;linker&#x2005;|&#x2005;This&#x2005;was&#x2005;generated&#x2005;automatically. %s " %        (headline, truncate, "search was" if truncate == 1 else "searches were", results, "^|&#x2005;View&#x2005;me&#x2005;on&#x2005;[GitHub](https://github.com/zpoon/runescape-wiki-reddit)." if subreddit == "runescape" else "")
+        return "I found %s for your search. *(%s %s ignored. Limit 6 results per comment.)* \n\n %s --- \n\n ^RuneScape&#x2005;Wiki&#x2005;linker&#x2005;|&#x2005;This&#x2005;was&#x2005;generated&#x2005;automatically." %        (headline, truncate, "search was" if truncate == 1 else "searches were", results)
 # Access the rs-wiki api to get relevant data per search term
 def get_wiki_info(value, site):
     print("getting data", value, site)
