@@ -43,7 +43,7 @@ def build_reply(wiki_data, subreddit, truncate):
     sites = []
     for item in wiki_data:
         sites.append(item['site'])
-        results += "**[%s](%s)** | %s \n\n >%s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], item['description'])
+        results += "**[%s](%s)** | %s \n\n > %s \n\n" % (item['result_name'], re.escape(item['result_url']), item['result_url'], item['description'])
     if sites.count('osrs') >= 1 and sites.count('rs3') >= 1:
         headline = "%s RuneScape Wiki + %s OSRS Wiki %s" % (sites.count('rs3'), sites.count('osrs'), "articles" if sites.count('osrs') > 1 else "article")
     elif sites.count('osrs') >= 1:
