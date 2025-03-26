@@ -1,0 +1,10 @@
+{
+    "reddit": {
+        "client_id": "client_id_here",
+        "secret": "secret_here",
+        "password": "password_here",
+        "username": "username_here",
+        "user_agent": "Reddit bot for <subreddit> by /u/zpoon",
+        "subreddit": "subreddit_here"
+    }
+}
