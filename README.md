@@ -13,6 +13,30 @@ Example: `[[os:rune platebody]]`
 - RuneScape: `r, rs3, rsw, rs, runescape`
 - Old School RuneScape: `o, 2007, osrs, osw, osrsw, os, oldschool, 2007scape, oldschoolrunescape`
 
+# Setup
+
+### config.json
+
+The bot loads configuration data from file `config.json` that holds reddit OAuth secrets and what subreddit is the bot running on. You can get these values by creating your own app on Reddit [here](https://www.reddit.com/prefs/apps).
+
+An example config.json would look like this:
+```
+{
+    "reddit": {
+        "client_id": "client_id_here",
+        "secret": "secret_here",
+        "password": "password_here",
+        "username": "username_here",
+        "user_agent": "Reddit bot for <subreddit> by /u/zpoon",
+        "subreddit": "subreddit_here"
+    }
+}
+```
+
+### Dependencies
+
+The bot uses a number of dependencies that can be installed with `pip`.  Namely `praw` to inteact with the Reddit API and `requests` to create HTTP requests to the RuneScape Wiki API. 
+
 # Donate
 I currently run /u/RSWikiLink on my own hardware. I'm more than happy to continue this, but if you found it helpful and want to help with the small costs involved, then feel free to chip in :)
 
