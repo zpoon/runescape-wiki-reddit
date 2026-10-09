@@ -20,8 +20,7 @@ You agree not to use the app to:
 - Interfere with or attempt to disrupt the app, Reddit, or the wikis it queries
 - Break Reddit's User Agreement, Reddit Rules, Developer Terms, or Devvit Rules, or the law
 
-The developer or subreddit moderators may stop the app from responding to particular users or content. This includes blocking the "Look up on wiki" action on those users' comments.
-
+The developer or subreddit moderators may stop the app from responding to particular users or content.
 ## 4. Third-party content and services
 
 Wiki summaries and links shown by the app come from the RuneScape Wiki and the Old School RuneScape Wiki. That content belongs to those wikis and their contributors and is subject to their licence and terms. The app displays only short summaries with links back to the source pages. Please see each wiki's own copyright and licence information.

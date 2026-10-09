@@ -21,7 +21,7 @@ In subreddits where a moderator has installed the app, Reddit notifies the app w
 
 Comments with no `[[ ]]` search terms are ignored, and nothing about them is kept.
 
-A user can also choose "Look up on wiki" from a comment's menu. The app then reads that comment's text, ID and author's username in the same way.
+A moderator can also choose "Look up on wiki" from a comment's menu. The app then reads that comment's text, ID and author's username in the same way.
 
 ## What the app stores
 
