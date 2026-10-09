@@ -1,6 +1,6 @@
 # Terms and Conditions — RSWikiLink
 
-**Last updated:** September 18, 2026
+**Last updated:** October 9, 2026
 
 These terms apply to rs-wiki-linker ("the app"), a Reddit Developer Platform (Devvit) app operated by Reddit user u/zpoon ("the developer"). By installing the app in a subreddit, or by using it (including by writing a `[[search term]]` in a comment where it is installed), you agree to these terms. If you do not agree, do not install or use the app.
 
@@ -20,7 +20,7 @@ You agree not to use the app to:
 - Interfere with or attempt to disrupt the app, Reddit, or the wikis it queries
 - Break Reddit's User Agreement, Reddit Rules, Developer Terms, or Devvit Rules, or the law
 
-The developer or subreddit moderators may stop the app from responding to particular users or content.
+The developer or subreddit moderators may stop the app from responding to particular users or content. This includes blocking the "Look up on wiki" action on those users' comments.
 
 ## 4. Third-party content and services
 
